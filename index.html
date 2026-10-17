@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>List Generator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc; /* slate-50 */
+            -webkit-tap-highlight-color: transparent;
+        }
+        /* Hide number input arrows */
+        input[type=number]::-webkit-inner-spin-button, 
+        input[type=number]::-webkit-outer-spin-button { 
+            -webkit-appearance: none; 
+            margin: 0; 
+        }
+        input[type=number] {
+            -moz-appearance: textfield;
+        }
+    </style>
+</head>
+<body class="text-slate-800 min-h-screen pb-10">
+
+    <!-- Header -->
+    <header class="bg-white shadow-sm border-b border-slate-200 sticky top-0 z-10">
+        <div class="max-w-md mx-auto px-4 py-4">
+            <h1 class="text-xl font-bold text-center text-slate-800">Quick List Maker</h1>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-md mx-auto px-4 mt-6 space-y-6">
+        
+        <!-- Input Section -->
+        <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 space-y-4">
+            
+            <!-- Item A -->
+            <div class="flex items-center justify-between gap-4">
+                <label for="itemA" class="text-lg font-medium text-slate-700 flex-grow">Item A</label>
+                <input type="number" id="itemA" min="0" placeholder="0" inputmode="numeric" 
+                    class="w-24 text-center text-xl font-semibold p-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow">
+            </div>
+
+            <!-- Item B -->
+            <div class="flex items-center justify-between gap-4">
+                <label for="itemB" class="text-lg font-medium text-slate-700 flex-grow">Item B</label>
+                <input type="number" id="itemB" min="0" placeholder="0" inputmode="numeric" 
+                    class="w-24 text-center text-xl font-semibold p-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow">
+            </div>
+
+            <!-- Item C -->
+            <div class="flex items-center justify-between gap-4">
+                <label for="itemC" class="text-lg font-medium text-slate-700 flex-grow">Item C</label>
+                <input type="number" id="itemC" min="0" placeholder="0" inputmode="numeric" 
+                    class="w-24 text-center text-xl font-semibold p-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow">
+            </div>
+            
+        </div>
+
+        <!-- Action Button -->
+        <button onclick="generateList()" class="w-full bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white text-lg font-semibold py-4 rounded-xl shadow-sm transition-all active:scale-[0.98]">
+            Generate List
+        </button>
+
+        <!-- Result Section (Hidden by default) -->
+        <div id="resultArea" class="hidden bg-white p-5 rounded-2xl shadow-sm border border-slate-100 space-y-4 animate-[fadeIn_0.3s_ease-in-out]">
+            <h2 class="text-sm font-semibold text-slate-500 uppercase tracking-wider">Your List</h2>
+            
+            <textarea id="outputText" readonly rows="5" 
+                class="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl text-slate-700 font-mono text-sm focus:outline-none resize-none"></textarea>
+            
+            <button onclick="copyToClipboard()" id="copyBtn" class="w-full flex items-center justify-center gap-2 bg-slate-800 hover:bg-slate-900 active:bg-black text-white text-lg font-medium py-4 rounded-xl shadow-sm transition-all active:scale-[0.98]">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                <span id="copyBtnText">Copy to Clipboard</span>
+            </button>
+        </div>
+
+        <!-- Toast Notification -->
+        <div id="toast" class="fixed bottom-5 left-1/2 transform -translate-x-1/2 bg-slate-800 text-white px-6 py-3 rounded-full shadow-lg text-sm font-medium opacity-0 pointer-events-none transition-opacity duration-300">
+            Copied successfully!
+        </div>
+
+    </main>
+
+    <script>
+        function generateList() {
+            // Define the items mapping
+            const items = [
+                { id: 'itemA', name: 'Item A' },
+                { id: 'itemB', name: 'Item B' },
+                { id: 'itemC', name: 'Item C' }
+            ];
+
+            let compiledList = '';
+
+            // Iterate through items and build the list if count > 0
+            items.forEach(item => {
+                const inputElement = document.getElementById(item.id);
+                const count = parseInt(inputElement.value);
+                
+                if (!isNaN(count) && count > 0) {
+                    compiledList += `${item.name}: ${count}\n`;
+                }
+            });
+
+            // Handle empty case
+            if (compiledList.trim() === '') {
+                compiledList = 'No items selected.';
+            } else {
+                // Optional: Add a title or date to the list
+                // const date = new Date().toLocaleDateString();
+                // compiledList = `List (${date}):\n\n` + compiledList;
+            }
+
+            // Display in textarea
+            const outputText = document.getElementById('outputText');
+            outputText.value = compiledList.trim();
+
+            // Show the result area
+            document.getElementById('resultArea').classList.remove('hidden');
+            
+            // Scroll to bottom smoothly
+            setTimeout(() => {
+                window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+            }, 100);
+            
+            // Reset copy button if it was in "Copied" state
+            resetCopyButton();
+        }
+
+        async function copyToClipboard() {
+            const textToCopy = document.getElementById('outputText').value;
+            
+            // Do not copy if empty or default "no items" message
+            if (!textToCopy || textToCopy === 'No items selected.') {
+                showToast('Nothing to copy!');
+                return;
+            }
+
+            try {
+                // Try modern clipboard API first
+                if (navigator.clipboard && window.isSecureContext) {
+                    await navigator.clipboard.writeText(textToCopy);
+                } else {
+                    // Fallback for iFrames or older browsers
+                    const textArea = document.createElement("textarea");
+                    textArea.value = textToCopy;
+                    // Move text area out of viewport so it's not visible
+                    textArea.style.position = "fixed";
+                    textArea.style.left = "-9999px";
+                    document.body.appendChild(textArea);
+                    textArea.focus();
+                    textArea.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(textArea);
+                }
+                
+                // Visual feedback
+                showToast('List copied to clipboard!');
+                setButtonCopiedState();
+
+            } catch (err) {
+                console.error('Failed to copy text: ', err);
+                showToast('Failed to copy. Please select manually.');
+            }
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.remove('opacity-0');
+            toast.classList.add('opacity-100');
+            
+            setTimeout(() => {
+                toast.classList.remove('opacity-100');
+                toast.classList.add('opacity-0');
+            }, 2500);
+        }
+
+        function setButtonCopiedState() {
+            const btnText = document.getElementById('copyBtnText');
+            const btn = document.getElementById('copyBtn');
+            btnText.textContent = 'Copied!';
+            btn.classList.replace('bg-slate-800', 'bg-green-600');
+            btn.classList.replace('hover:bg-slate-900', 'hover:bg-green-700');
+            
+            setTimeout(resetCopyButton, 3000);
+        }
+
+        function resetCopyButton() {
+            const btnText = document.getElementById('copyBtnText');
+            const btn = document.getElementById('copyBtn');
+            btnText.textContent = 'Copy to Clipboard';
+            btn.classList.replace('bg-green-600', 'bg-slate-800');
+            btn.classList.replace('hover:bg-green-700', 'hover:bg-slate-900');
+        }
+    </script>
+</body>
+</html>

@@ -3,16 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>List Generator</title>
+    <title>Restock App</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f8fafc; /* slate-50 */
+            background-color: #f1f5f9; /* slate-100 */
             -webkit-tap-highlight-color: transparent;
         }
-        /* Hide number input arrows */
+        /* Hide number input arrows for a cleaner mobile look */
         input[type=number]::-webkit-inner-spin-button, 
         input[type=number]::-webkit-outer-spin-button { 
             -webkit-appearance: none; 
@@ -21,135 +21,186 @@
         input[type=number] {
             -moz-appearance: textfield;
         }
+        .fade-in {
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
     </style>
 </head>
-<body class="text-slate-800 min-h-screen pb-10">
+<body class="text-slate-800 min-h-screen flex flex-col items-center">
 
-    <!-- Header -->
-    <header class="bg-white shadow-sm border-b border-slate-200 sticky top-0 z-10">
-        <div class="max-w-md mx-auto px-4 py-4">
-            <h1 class="text-xl font-bold text-center text-slate-800">Quick List Maker</h1>
+    <!-- Auth Screen -->
+    <div id="authScreen" class="w-full max-w-md px-6 flex flex-col justify-center min-h-screen">
+        <div class="bg-white p-8 rounded-3xl shadow-sm border border-slate-200 text-center space-y-6">
+            <div class="w-16 h-16 bg-blue-100 text-blue-600 rounded-2xl flex items-center justify-center mx-auto shadow-inner">
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+            </div>
+            <div>
+                <h1 class="text-2xl font-bold text-slate-800">Secure Access</h1>
+                <p class="text-slate-500 mt-2 text-sm">Enter passcode to view inventory</p>
+            </div>
+            
+            <div class="space-y-4 pt-4">
+                <input type="password" id="passcodeInput" placeholder="Enter code" 
+                    class="w-full text-center text-xl font-bold p-4 bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all">
+                
+                <div id="authError" class="hidden text-red-500 text-sm font-medium">Incorrect passcode. Try again.</div>
+                
+                <button onclick="checkPasscode()" class="w-full bg-slate-900 hover:bg-black active:bg-slate-800 text-white text-lg font-semibold py-4 rounded-2xl shadow-md transition-all active:scale-[0.98]">
+                    Unlock App
+                </button>
+            </div>
         </div>
-    </header>
+    </div>
 
-    <!-- Main Content -->
-    <main class="max-w-md mx-auto px-4 mt-6 space-y-6">
+    <!-- Main App (Hidden initially) -->
+    <div id="mainApp" class="hidden w-full max-w-md px-4 pb-10 fade-in">
         
-        <!-- Input Section -->
-        <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 space-y-4">
+        <header class="py-6 mb-2 sticky top-0 bg-[#f1f5f9] z-10">
+            <h1 class="text-2xl font-bold text-slate-800 tracking-tight">Current Stock Check</h1>
+            <p class="text-slate-500 text-sm mt-1">Enter amounts currently present.</p>
+        </header>
+
+        <main class="space-y-6">
             
-            <!-- Item A -->
-            <div class="flex items-center justify-between gap-4">
-                <label for="itemA" class="text-lg font-medium text-slate-700 flex-grow">Item A</label>
-                <input type="number" id="itemA" min="0" placeholder="0" inputmode="numeric" 
-                    class="w-24 text-center text-xl font-semibold p-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow">
+            <!-- Items Container (Populated by JS) -->
+            <div id="itemsContainer" class="space-y-4">
+                <!-- Inputs inject here -->
             </div>
 
-            <!-- Item B -->
-            <div class="flex items-center justify-between gap-4">
-                <label for="itemB" class="text-lg font-medium text-slate-700 flex-grow">Item B</label>
-                <input type="number" id="itemB" min="0" placeholder="0" inputmode="numeric" 
-                    class="w-24 text-center text-xl font-semibold p-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow">
-            </div>
-
-            <!-- Item C -->
-            <div class="flex items-center justify-between gap-4">
-                <label for="itemC" class="text-lg font-medium text-slate-700 flex-grow">Item C</label>
-                <input type="number" id="itemC" min="0" placeholder="0" inputmode="numeric" 
-                    class="w-24 text-center text-xl font-semibold p-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow">
-            </div>
-            
-        </div>
-
-        <!-- Action Button -->
-        <button onclick="generateList()" class="w-full bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white text-lg font-semibold py-4 rounded-xl shadow-sm transition-all active:scale-[0.98]">
-            Generate List
-        </button>
-
-        <!-- Result Section (Hidden by default) -->
-        <div id="resultArea" class="hidden bg-white p-5 rounded-2xl shadow-sm border border-slate-100 space-y-4 animate-[fadeIn_0.3s_ease-in-out]">
-            <h2 class="text-sm font-semibold text-slate-500 uppercase tracking-wider">Your List</h2>
-            
-            <textarea id="outputText" readonly rows="5" 
-                class="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl text-slate-700 font-mono text-sm focus:outline-none resize-none"></textarea>
-            
-            <button onclick="copyToClipboard()" id="copyBtn" class="w-full flex items-center justify-center gap-2 bg-slate-800 hover:bg-slate-900 active:bg-black text-white text-lg font-medium py-4 rounded-xl shadow-sm transition-all active:scale-[0.98]">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-                <span id="copyBtnText">Copy to Clipboard</span>
+            <!-- Action Button -->
+            <button onclick="generateRestockList()" class="w-full bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white text-xl font-bold py-5 rounded-2xl shadow-lg transition-all active:scale-[0.98]">
+                Generate Restock List
             </button>
-        </div>
 
-        <!-- Toast Notification -->
-        <div id="toast" class="fixed bottom-5 left-1/2 transform -translate-x-1/2 bg-slate-800 text-white px-6 py-3 rounded-full shadow-lg text-sm font-medium opacity-0 pointer-events-none transition-opacity duration-300">
-            Copied successfully!
-        </div>
+            <!-- Result Section -->
+            <div id="resultArea" class="hidden bg-white p-6 rounded-3xl shadow-sm border border-slate-200 space-y-5 fade-in">
+                <h2 class="text-sm font-bold text-slate-400 uppercase tracking-widest text-center">Required Items</h2>
+                
+                <textarea id="outputText" readonly rows="4" 
+                    class="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl text-slate-800 font-mono text-base font-medium focus:outline-none resize-none"></textarea>
+                
+                <button onclick="copyToClipboard()" id="copyBtn" class="w-full flex items-center justify-center gap-3 bg-slate-800 hover:bg-slate-900 active:bg-black text-white text-xl font-bold py-5 rounded-2xl shadow-md transition-all active:scale-[0.98]">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                    <span id="copyBtnText">Copy to Clipboard</span>
+                </button>
+            </div>
 
-    </main>
+        </main>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-8 left-1/2 transform -translate-x-1/2 bg-slate-900 text-white px-6 py-4 rounded-full shadow-2xl text-sm font-bold opacity-0 pointer-events-none transition-opacity duration-300 z-50">
+        Copied successfully!
+    </div>
 
     <script>
-        function generateList() {
-            // Define the items mapping
-            const items = [
-                { id: 'itemA', name: 'Item A' },
-                { id: 'itemB', name: 'Item B' },
-                { id: 'itemC', name: 'Item C' }
-            ];
+        // 1. Backend Expected Targets
+        const TARGET_INVENTORY = {
+            "Milk": 3,
+            "Curd": 8
+        };
 
+        // 2. Auth Logic
+        function checkPasscode() {
+            const input = document.getElementById('passcodeInput').value;
+            const errorMsg = document.getElementById('authError');
+            
+            if (input === 'haveli157') {
+                document.getElementById('authScreen').classList.add('hidden');
+                document.getElementById('mainApp').classList.remove('hidden');
+                renderItems();
+            } else {
+                errorMsg.classList.remove('hidden');
+                // Shake animation or quick hide for error
+                setTimeout(() => errorMsg.classList.add('hidden'), 3000);
+            }
+        }
+
+        // Allow pressing 'Enter' on keyboard to submit passcode
+        document.getElementById('passcodeInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') checkPasscode();
+        });
+
+        // 3. Render Inputs dynamically based on TARGET_INVENTORY
+        function renderItems() {
+            const container = document.getElementById('itemsContainer');
+            container.innerHTML = ''; // Clear just in case
+
+            for (const [itemName, targetAmount] of Object.entries(TARGET_INVENTORY)) {
+                // Remove spaces for safe HTML IDs
+                const safeId = itemName.replace(/\s+/g, '_'); 
+                
+                const itemHTML = `
+                <div class="bg-white p-5 rounded-3xl shadow-sm border border-slate-100 flex items-center justify-between gap-4">
+                    <div class="flex-grow">
+                        <label for="item_${safeId}" class="block text-xl font-bold text-slate-800">${itemName}</label>
+                        <span class="text-sm font-medium text-slate-400">Target: ${targetAmount}</span>
+                    </div>
+                    <input type="number" id="item_${safeId}" min="0" placeholder="0" inputmode="numeric" 
+                        class="w-24 text-center text-2xl font-bold p-3 bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all">
+                </div>
+                `;
+                container.innerHTML += itemHTML;
+            }
+        }
+
+        // 4. Calculate and Generate List
+        function generateRestockList() {
             let compiledList = '';
 
-            // Iterate through items and build the list if count > 0
-            items.forEach(item => {
-                const inputElement = document.getElementById(item.id);
-                const count = parseInt(inputElement.value);
+            for (const [itemName, targetAmount] of Object.entries(TARGET_INVENTORY)) {
+                const safeId = itemName.replace(/\s+/g, '_');
+                const inputElement = document.getElementById(`item_${safeId}`);
                 
-                if (!isNaN(count) && count > 0) {
-                    compiledList += `${item.name}: ${count}\n`;
-                }
-            });
+                // Parse user input. If empty, default to 0 (meaning nothing is in stock)
+                const currentStock = parseInt(inputElement.value) || 0;
+                
+                const amountNeeded = targetAmount - currentStock;
 
-            // Handle empty case
-            if (compiledList.trim() === '') {
-                compiledList = 'No items selected.';
-            } else {
-                // Optional: Add a title or date to the list
-                // const date = new Date().toLocaleDateString();
-                // compiledList = `List (${date}):\n\n` + compiledList;
+                // Only add to list if we need to restock (Required > 0)
+                if (amountNeeded > 0) {
+                    compiledList += `${itemName}: ${amountNeeded}\n`;
+                }
             }
 
-            // Display in textarea
+            if (compiledList.trim() === '') {
+                compiledList = 'Everything is fully stocked!';
+            }
+
+            // Display result
             const outputText = document.getElementById('outputText');
             outputText.value = compiledList.trim();
-
-            // Show the result area
-            document.getElementById('resultArea').classList.remove('hidden');
             
-            // Scroll to bottom smoothly
+            const resultArea = document.getElementById('resultArea');
+            resultArea.classList.remove('hidden');
+            
+            // Auto scroll down to results
             setTimeout(() => {
                 window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
             }, 100);
             
-            // Reset copy button if it was in "Copied" state
             resetCopyButton();
         }
 
+        // 5. Copy to Clipboard Utility
         async function copyToClipboard() {
             const textToCopy = document.getElementById('outputText').value;
             
-            // Do not copy if empty or default "no items" message
-            if (!textToCopy || textToCopy === 'No items selected.') {
-                showToast('Nothing to copy!');
+            if (!textToCopy || textToCopy === 'Everything is fully stocked!') {
+                showToast('Nothing to buy!');
                 return;
             }
 
             try {
-                // Try modern clipboard API first
                 if (navigator.clipboard && window.isSecureContext) {
                     await navigator.clipboard.writeText(textToCopy);
                 } else {
-                    // Fallback for iFrames or older browsers
                     const textArea = document.createElement("textarea");
                     textArea.value = textToCopy;
-                    // Move text area out of viewport so it's not visible
                     textArea.style.position = "fixed";
                     textArea.style.left = "-9999px";
                     document.body.appendChild(textArea);
@@ -159,7 +210,6 @@
                     document.body.removeChild(textArea);
                 }
                 
-                // Visual feedback
                 showToast('List copied to clipboard!');
                 setButtonCopiedState();
 
